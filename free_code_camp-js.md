@@ -67,3 +67,31 @@ iPhone.prototype = {
     }
 }
 ```
+
+Just like you can test for what class an object belongs to, you can also test what prototype an object belongs to.
+
+```javascript
+iPhone.prototype.isPrototypeOf(myIPhone); -> true
+```
+You many notice that this method is completely ass-backwards. You use the prototype of the *class* to check an instance (object).
+
+As you saw above when we made the `prototype` of an iPhone an object, prototypes themselves are in fact objects. You can check a variable's type by using the `typeof` keyword.
+
+```javascript
+typeof(iPhone.prototype); // -> object
+```
+
+All javascript objects have a prototype. Since prototype itself is an object, it too has a prototype! Let's take our iPhone class. At its core, all classes are subclasses of the `Object` class. This is a common feature among many different programming languages. So given that all classes are related to the `Object` class, what do you think this statement returns?
+
+```javascript
+Object.prototype.isPrototypeOf(iPhone.prototype); // true or false?
+```
+
+It evaluates to true. The prototype of the iPhone.prototype is the same as the prototype for `Object`. You are now probably asking "how is this useful?". At this moment, it is only useful because it demonstrates an important concept of `inheritance`.
+
+`inheritance` is the idea that myIPhone and yourIPhone get some default properties from the class iPhone. This is useful because anyone who picks up an iPhone will already know how to use some of its features. This is why we have the same concept for Objects. When objects come from the same class, or they share common properties and methods, we can use them to do things without having to write different code for each iPhone in the world (which you can imagine would be impossible). Instead we write code that will work with *all* iPhones, even though each phone is different.
+
+So, to summarize: Every object in javascript comes from the Object class (this is already made for you by default). This means that no matter what kind of object you are dealing with, they all have the same methods and properties that belong to the Object class. So which are those methods and properties? There are lots, but one of them is `hasOwnProperty`, which we have seen before. So given that, is it possible to call `hasOwnProperty` on a class we have never seen before?
+
+The answer is: yes. 
+
