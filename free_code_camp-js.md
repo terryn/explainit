@@ -223,11 +223,125 @@ myIPhone6.hasOwnProperty('version');
 ```
 ?
 
-The iPhone6 class does not define `hasOwnProperty` anywhere, and neither does the iPhone class. So the final place that Javascript looks is in the `Object` class itself, where it does find that method. But if `hasOwnProperty` was defined on either the iPhone6 or the iPhone class, then *that* version of the method would be called instead. This is what is meant by `overriding`. We "override" the original method with one that is more specific.
-
+The iPhone6 class does not define `hasOwnProperty` anywhere, and neither does the iPhone class. So the final place that Javascript looks is in the `Object` class itself, where it does find that method. But if `hasOwnProperty` was defined on either the iPhone6 or the iPhone class, then *that* version of the method would be called instead. This is what is meant by `overriding`. We "override" the original method with one that is more specific. The most specific definition "wins". If both the iPhone6 and the iPhone class had `hasOwnProperty` methods, then only the iPhone6 version would be called by
 
 ```javascript
-
+myIPhone6.hasOwnProperty('version');
 ```
 
+# Mixins
+
+Mixins stands for "mixed-in" i.e. you added two unrelated things together and made something new e.g. a cake.
+
+So what does this mean? It means that you can combine unrelated classes to get a combination of the two (or more). Let's see an example:
+
+```javascript
+function iPhone () {};
+iPhone.prototype = {
+    constructor: iPhone,
+    ...
+}
+
+function LightSwitch() {};
+LightSwitch.prototype = {
+    constructor: LightSwitch,
+    ...
+}
+
+function addTurnOff(someFunction) {
+    someFunction.turnOff = function () {
+        console.log('please turn off now');
+    }
+}
+let myIPhone = new iPhone();
+let myLightSwitch = new LightSwitch();
+addTurnOff(myIPhone);
+addTurnOff(myLightSwitch);
+
+// Now both myIPhone and myLightSwitch have a 'turnOff' method.
+// We can make a general 'turnOff' method and then add it to whatever we think
+// needs the ability to be turned off, just like we did to the two unrelated
+// classes, iPhone and LightSwitch.
+```
+
+# What the ?&*! Is A Closure?
+A "closure" is a function inside a function, like this:
+
+```javascript
+function outsideFunction() {
+    function insideFunction() {
+        // ascii art here
+    }
+}
+```
+
+What happens when we do this:
+```javascript
+outsideFunction();
+```
+
+The answer is "absolutely nothing". This is because when the outsideFunction is called, all it does is define a new function. This is all perfectly valid, but so far hasn't done anything yet.
+
+What if we changed it to this:
+
+```javascript
+function outsideFunction() {
+    function insideFunction() {
+        return "I'm inside";
+    }
+}
+
+outsideFunction(); // what do I return?
+```
+
+The correct answer is "still nothing". What are we missing? We need to add the `return` keyword to the bottom of the `outsideFunction` function. But what are we going to return?
+
+```javascript
+function outsideFunction() {
+    function insideFunction() {
+        return "I'm inside";
+    }
+    return insideFunction();
+}
+
+outsideFunction(); // what do I return?
+```
+
+Now `outsideFunction()` will return "I'm inside". So we have now see that you can have a function defined within a function, *and* that you can actually call, or invoke, that inside function. This is a closure. So far it is completely useless, but it is still a closure. So how is this useful?
+
+For one thing, we can take advantage of the way Javascript works and hide variables from others trying to modify them.
+
+```javascript
+function outsideFunction() {
+    let someSecretVariableThatNobodyCanModify = "Who rocks? You do!";
+    function insideFunction() {
+        return "I'm inside";
+    }
+    return insideFunction();
+}
+
+outsideFunction(); // same output, but there is a hidden variable that we
+                   // don't know about.
+```
+
+Ok, so we've got a secret variable that nobody can modify. Variables like this are said to be "private". Still, this doesn't explain why closures are useful. Let's make a private variable for a *class* instead of just a random function. Actually, just because of the way javascript works, we can make an object from the outsideFunction directly, so let's do that. **But** we need to modify the `insideFunction` just a bit to make our point.
+
+```javascript
+function outsideFunction() {
+    let someSecretVariableThatNobodyCanModify = "Who rocks? You do!";
+    function insideFunction() {
+        return someSecretVariableThatNobodyCanModify; // this line is different
+    }
+    return insideFunction();
+}
+let demonstration = new outsideFunction(); // normally class definitions should be uppercase, this is only for demo purposes.
+
+console.log(demonstration.insideFunction()); // what does this output?
+
+// Who rocks? You do!
+```
+
+With the code above we can now make a variable for instances of the `outsideFunction` that can't be changed. It is private. But! We can *read* the value by calling the `insideFunction`. So the attribute is **read-only**.
+
+You might be asking "and?". Now is not the time to explain why this is useful, but it does have a purpose which will become more clear with experience. For now just know that having some private read-only attributes on a class can be useful, and closures, or functions inside of functions, are a very common way in Javascript to do this.
 
