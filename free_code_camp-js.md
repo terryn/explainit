@@ -345,3 +345,59 @@ With the code above we can now make a variable for instances of the `outsideFunc
 
 You might be asking "and?". Now is not the time to explain why this is useful, but it does have a purpose which will become more clear with experience. For now just know that having some private read-only attributes on a class can be useful, and closures, or functions inside of functions, are a very common way in Javascript to do this.
 
+# Immediately Invoke Function Expression (IIFE)
+Sometimes we want to write a function definition *and* have that function immediately execute whenever the Javascript engine e.g. a browser, finds it. It is possible to just write all the code inside the function inside the global scope, but you won't be able to get a job writing that, and besides, it will make your life easier to group functionality together.
+
+```javascript
+(function iGot99Problems () {
+    console.log("but IIFEs aren't one");
+})();
+
+// is equivalent to just writing this
+console.log("but IIFEs aren't one");
+// This example is trivial so the code directly above is simplier, but
+// if you were going to do something complicated the IIFE is a better idea.
+```
+
+In Javascript 6 there is shorthand syntax for defining functions.
+
+```javascript
+let chocolate = function () {
+    this.yum = "yes";
+}
+// Is equivalent to
+let chocolate = () => {
+    this.yum = "yes";
+}
+```
+Notice the empty () in the second example? It's the same () that surround the beginning and end of our IIFE.
+
+```javscript
+(function () {
+    console.log("just executed");
+})(); // <- see the () here?
+```
+
+The final () at the end is just the way of calling, or invoking, the annonymous function we just wrote (anonymous because the function has no name that we can refer to it by).
+
+### IIFE to make a module ###
+What do we mean by a module? A module is a grouping of functionality i.e. variables and functions. It's for our own benefit, to make a kind of lego block of code that we can reuse whenever we need it. When I say I need a flat four by four lego block, everybody knows what that means, and we can make the equivalent of those by creating modules.
+
+Immediately Invoking Function Expressions are a way to create modules. Prepare yourself for a ton of curly braces.
+
+```javascript
+let legoBricks = (function () {
+    return {
+        // crap, yet another set of curly braces
+        twoByTwoBrick: function () { // yes, there is more
+            return "I'm a two by two brick";
+        },
+        rubberTireThatIsFunToChew: function () {
+            return "What?"
+        }
+    }
+})
+```
+
+Believe it or not, but I took it easy on you with the curly braces. If we had `mixin`s in our module then we'd shower you with even more braces. You will see this out in the wild.
+
