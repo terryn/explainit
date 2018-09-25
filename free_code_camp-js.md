@@ -401,3 +401,54 @@ let legoBricks = (function () {
 
 Believe it or not, but I took it easy on you with the curly braces. If we had `mixin`s in our module then we'd shower you with even more braces. You will see this out in the wild.
 
+# Functional Programming
+So far the programs we have seen are written with the "imperative" programming style. Imperative programs look very much like an instruction manual or a recipe. We do each line in a specific order and we give instructions *how* to do it. It's like giving orders to the most literal person in the world; you must spell out exactly what you want in the exact correct order. But imperative programming isn't the only way programs can be written, there is a another style called "functional programming".
+
+Functional programmming is a way to write a program that doesn't actually do anything. That is a bit of an exaggeration, but if we were being strict, this is in a way true. What we mean by "functional programming doesn't do anything" is that they do not produce any observable result, also known as a "side-effect". Example time.
+
+```javascript
+let weatherForecast = 'partly cloud with a chance of meatballs';
+console.log(weatherForecast); // outputs 'partly cloud with a chance of meatballs', so far totally predictable.
+```
+
+The above example is very clear: print the value of `weatherForecast` to the screen i.e. console. What if we hadn't printed the value of the variable? Would we have been able to know what the `weatherForecast` variable contained? No, this was only possible because *producing output, e.g. printing something to a screen, is a side-effect*. By printing, we altered the state of the console, we made some I/O (input/output). Printing is only one example of a side-effect, there are many others such as: writing to a file, making an entry into a database, browsing the internet, etc. 
+
+When we do an action that changes something, we produce a side-effect. Another way of putting it is that we have "altered state". It's like opening or closing a door. When you make an action on the door, you can either put it into the open or closed position. Either way, you've altered the door's state.
+
+Functional programming is more like both opening the door, and then before the program finishes, closing it again. So in the end, everything goes back to where it originally was. This raises the question of what the heck the point is. If we can never open a door and keep it open, we can never step through it and you're stuck. Functional programming fixes this by cheating: it can produce side-effects, but it does its hardest to avoid doing so as much as possible. How functional programs produce side-effects will be explained further, but the main idea is that they *avoid* this as much as possible.
+
+One of the benefits of functional programming is that can be easier to reason about the program's structure. By having this contraint of changing almost nothing, we can more clearly see what our program actually does.
+
+```javascript
+function TheDude () {
+    this.abides = true;
+    this.talk = function () {
+        if (this.abides) {
+            return "The Dude abides.";
+        } else {
+            return "That rug really tied the room together, man!";
+        }
+    }
+}
+
+function changeTheDude(theDude) {
+    theDude.abides = false;
+}
+
+let theDude = new TheDude();
+console.log(theDude.talk()); // "The Dude abides."
+changeTheDude(theDude);      // here we change the state of theDude
+console.log(theDude.talk()); // "That rug really tied the room together, man!"
+```
+Above we have a typical example of bad imperative programming. We have an object and it has its own state represented by the `abides` boolean attribute. The `changeTheDude` function alters the state of `theDude` object i.e. before the function `changeTheDude`, the value of `abides` was `true`, afterwards it was false i.e. theDude has been changed.
+
+Now imagine that you have a complicated object that has many many attributes and methods, and that that this object is used over thousands of lines of code. Any one of those lines could make a change to the internal state of the object, by setting a new field or resetting the value of one it already has. If someone comes to you and asks "on line 14335, what will be the state of the object?", you would be perfectly in the right to say "I have no clue", because there are simply too many places where this object has been changed.
+
+This can get even more complicated when the code has a lot of conditional statements that will *possibly* set *more* attributes on the object, but only if a statement evaluates to true. And then *that* attribute can be used in further conditional statements, etc. 
+
+Functional programming avoids this problem by not keeping state, and only when it needs to, producing a side-effect. Why isn't functional programming used by everybody all the time? Because functional programming has its own complexity, and it can be more difficult to start writing a program. To some people functional programming is more intuitive and easier, but to most it looks like an evil math professor is trying to *?&! with you.
+
+### Side-effects 
+Side-effects 
+
+
