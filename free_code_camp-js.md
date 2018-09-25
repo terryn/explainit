@@ -417,7 +417,7 @@ When we do an action that changes something, we produce a side-effect. Another w
 
 Functional programming is more like both opening the door, and then before the program finishes, closing it again. So in the end, everything goes back to where it originally was. This raises the question of what the heck the point is. If we can never open a door and keep it open, we can never step through it and you're stuck. Functional programming fixes this by cheating: it can produce side-effects, but it does its hardest to avoid doing so as much as possible. How functional programs produce side-effects will be explained further, but the main idea is that they *avoid* this as much as possible.
 
-One of the benefits of functional programming is that can be easier to reason about the program's structure. By having this contraint of changing almost nothing, we can more clearly see what our program actually does.
+One of the main benefits of functional programming is that it **can be easier to reason about the program's structure**. By having this contraint of changing almost nothing and breaking our program into many small functions, we can more clearly see what our program actually does.
 
 ```javascript
 function TheDude () {
@@ -442,11 +442,68 @@ console.log(theDude.talk()); // "That rug really tied the room together, man!"
 ```
 Above we have a typical example of bad imperative programming. We have an object and it has its own state represented by the `abides` boolean attribute. The `changeTheDude` function alters the state of `theDude` object i.e. before the function `changeTheDude`, the value of `abides` was `true`, afterwards it was false i.e. theDude has been changed.
 
-Now imagine that you have a complicated object that has many many attributes and methods, and that that this object is used over thousands of lines of code. Any one of those lines could make a change to the internal state of the object, by setting a new field or resetting the value of one it already has. If someone comes to you and asks "on line 14335, what will be the state of the object?", you would be perfectly in the right to say "I have no clue", because there are simply too many places where this object has been changed.
+Now imagine that you have a complicated object that has many many attributes and methods, and that that this object is used over thousands of lines of code. Any one of those lines could make a change to the internal state of the object, by setting a new field or resetting the value of one it already has. If someone comes to you and asks "on line 14335, what is the value of `abides`?", you would be perfectly in the right to say "I have no clue", because there are simply too many places where this object i.e. theDude, has been changed.
 
-This can get even more complicated when the code has a lot of conditional statements that will *possibly* set *more* attributes on the object, but only if a statement evaluates to true. And then *that* attribute can be used in further conditional statements, etc. 
+This can get even more complicated when the code has a lot of conditional statements that will *possibly* set *even more* attributes on the object, but only if a statement evaluates to true. And then *those* attributes can be used in further conditional statements, etc. 
 
-Functional programming avoids this problem by not keeping state, and only when it needs to, producing a side-effect. Why isn't functional programming used by everybody all the time? Because functional programming has its own complexity, and it can be more difficult to start writing a program. To some people functional programming is more intuitive and easier, but to most it looks like an evil math professor is trying to *?&! with you.
+Functional programming avoids this problem by not keeping state, and only when it needs to, producing a side-effect. Why isn't functional programming used by everybody all the time? Because pure functional programming has its own complexity, and it can be more difficult to start writing a program. To some people functional programming is more intuitive and easier, but to most it looks like an evil math professor is trying to *?&! with you.
+
+```javascript
+function talk(abides) {
+    if (abides) {
+        return "The Dude abides.";
+    } else {
+        return "That rug really tied the room together, man!";
+    }
+}
+
+console.log(talk(true));
+console.log(talk(false));
+```
+Compared to the first example, the one above is always clear on what exactly the `talk` function returns, it doesn't matter if it is called as the first line in your program or if it is on the 20000th line. The princple here is this: functional programming takes the output of the previous function and gives it as input to the next function, which takes that output and gives it to the next function, etc. So what you get is a chain of functions, each providing the input for the next one in the chain.
+
+```javascript
+function talk(abides) {
+    if (abides) {
+        return "The Dude abides.";
+    } else {
+        return "You peed on my rug, man!";
+    }
+}
+
+function peedOnRug() {
+    return false;
+}
+
+function drinkingWhiteRussian() {
+    return true;
+}
+
+console.log( // What is the output?
+  talk(
+    peedOnRug() // returns `false`.
+  )
+);            
+console.log( // And here, what is the output?
+  talk(
+    drinkingWhiteRussian() // returns `true`
+  )
+); 
+```
+
+The above example is functional programming. The output from `drinkingWhiteRussian` and `peedOnRug` is used as *input* for `talk`. `talk` always produces the same output when it is given the same input, so as long as we know what `drinkingWhiteRussian` and `peedOnRug` produce, we can know what `talk` will actually return.
+
+You may notice that even `talk`'s output is passed to another function: console.log. That is the function that produces the side-effect of printing the value returned by `talk`. It is important to notice that the function that is furtherest on the outside is actually executed last. So the very first function to be run in the first example is `peedOnRug`.
+
+peedOnRug() -> false -> talk (false) -> "You peed on my rug, man!" -> console.log("You peed on my rug, man!");
+
+drinkingWhiteRussian() -> true -> talk (true) -> "The Dude abides, man." -> console.log("The Dude abides, man.");
+
+All of the above happened by only calling functions and then using the output as input for the next function. There is no variable that lives outside any of these functions, and there is no "state" to be changed. If we can understand the beginning of the chain, we can follow the output all the way to the end to see our final result.
+
+
+
+Fortunately, many programming languages have support for both imperative *and* functional programming styles. Personally, I like to use functional as much as possible, and only use imperative e.g. objects, when it is necessary. Javascript heavily uses functional programming techniques, and you will see it in a lot of the code that is written.
 
 ### Side-effects 
 Side-effects 
