@@ -508,4 +508,140 @@ Fortunately, many programming languages have support for both imperative *and* f
 ### Side-effects 
 Side-effects 
 
+### Callbacks
+A `callback` is a function that was given as an argument to another function.
+
+```javascript
+function callbackFunction(coffee) {
+    console.log("I am being executed by the function that I was given to as a parameter");
+    let sugar = "2 lumps";
+    return sugar + coffee;
+}
+function main(callbackFunction) {
+    console.log("do all the things.");
+    console.log("time to make the callback");
+    let someCalculation = ...
+    let calculationTransformed = callbackFunction(someCalculation);
+}
+```
+The callbackFunction is a *blocking callback*. This is because the `main` function cannot finish before the `callbackFunction` is finished and returns the `calculationTransformed`. This example, as you may have guessed, is pretty useless. So what are callbacks used for anyway?
+
+Here are two ways callbacks are commonly used: performing an action on each item in a list (we'll give an example), writing "event-driven" programming (more on this later).
+
+##### Performing an action on each item in a list
+By default, javascript arrays have a function called `filter`. This function takes a function as one of its arguments, like so.
+
+```javascript
+function coffeeFilter(item) {
+    return item === 'coffee';
+}
+
+let drinks = ["kombucha", "carrot juice", "coffee", "soda"];
+
+console.log(drinks.filter(coffeeFilter)); // outputs "coffee"
+```
+The function we give `filter` sets the criteria for keeping the item, or *filtering* it out. By returning `true` we keep the item. `coffeeFilter` is a callback.
+
+
+```javascript
+let someOfMyFavoriteThings = ["Raindrops", "roses", "whiskers", "kittens"];
+
+function iLikeKittens(item) {
+    if (item === "kittens") { // only interested in kittens
+        return true;
+    }
+    return false;
+}
+
+Array.prototype.filter = function(yourCallback) {
+    let outputArray = [];
+    for (let i=0;i<this.length;i++) {
+        if (yourCallback(this[i])) { // if `yourCallback` returns true
+            outputArray.push(this[i]);
+        }
+    }
+    return outputArray;
+}
+console.log(someOfMyFavoriteThings.filter(iLikeKittens)); // Array["kittens"]
+```
+
+The other use of callbacks that we've mentioned is for event-driven programming. In plain English it means this: you know when you go to do something else after you have started making a bath and it is not yet full? That's what we're talking about.
+
+The first part is you turn the water on for the bath, and this is our "first" function. Then you go and make a sandwich (another other function). Then, when the bath is full, you turn the water off (that is your callback). 
+
+The *event* of the bath being full is what made you turn the water off. You could have just sat in the bathroom and waited for the bath to fill up, but by doing something inbetween starting the bath and it being ready, you could do another task while you were waiting. This is the power of event-driven programming: you can start a task that will take some time, do some other quick tasks, and then come back to the first task when it is finally ready. This is called "non-blocking" vs the option to just stare at the bath until it is full (blocking). Callbacks are a common way to accomplish this, and in Javascript we will see this used extensively.
+
+So we can say that callbacks are kind of cool, but there is also something called callback-hell, and this is when there are so many asynchronous callbacks being used that no one call tell what the \*bleep\* is going on. Javascript has a lot of that, too, unfortunately. 
+
+### Splice vs Slice
+The `splice` and `slice` methods are functions on the Array.prototype i.e. all arrays have these methods. `splice` changes (mutates), the original array.
+
+```javascript
+let holidays = ["Kwanza", "Cinco de Mayo", "Easter", "Halloween"];
+holidays.splice(1,2); // produces "Cinco de Maya"
+console.log(holidays); // ["Kwanza", "Easter", "Halloween"];
+console.log(holidays.length); // 3
+```
+
+Whereas the `slice` method does not change the original array, but returns a *copy* of the array section you want. 
+
+```javascript
+let holidays = ["Kwanza", "Cinco de Mayo", "Easter", "Halloween"];
+let shorterHolidayList = holidays.slice(0,1); // ["Kwanza"]
+console.log(holidays); // ["Kwanza", "Cinco de Mayo", "Easter", "Halloween"];
+console.log(holidays.length); // 4
+```
+
+How to remember which one is the copier and which one changes the array? 
+  `splice` is nice but `slice` is better.
+
+In general, we want to avoid changing the variables given to us. Instead we want to use those variables to produce a *new* variable that we can then use in our programs. One of the ways this is accomplished is by copying variables that can be mutated and use the new copy rather than changings the variable and continuing to use that one.
+
+### Concatenation aka Concat aka Cat
+Concatenation is simply making two things into one by joining them together. This is most common on strings, but we can do it for arrays as well.
+
+```javascript
+// string concatenation
+let cowName = "Bessie";
+let dogName = "Albert";
+let cowAndDog = cowName + " and " + dogName;
+console.log(cowAndDog); // "Bessie and Albert"
+
+// array concatenation
+let cows = ["Bessie"];
+let dogs = ["Toffi", "Albert"];
+let cowsAndDogsTogether = cows.concat(dogs);
+console.log(cowsAndDogsTogether); // ["Bessie", "Toffi", "Albert"];
+
+// Order is important for both strings and arrays!
+
+let dogsAndCowsTogether = dogs.concat(cows);
+console.log(dogsAndCowsTogether); // ["Toffi", "Albert", "Bessie"]
+
+console.log(dogs); // ["Toffi", "Albert"]
+console.log(cows); // ["Bessie"]
+```
+We should note that neither the `dogs` nor the `cows` array has been changed by concatenation. When you use the `concat` array method, you get a *new* array that is a combination of both, and it leaves the original two arrays as they were.
+
+##### Why Use Concat?
+As just mentioned, concatenation does not change the original arrays, but still produces a new result i.e. the new combined array, that we can use. This is exactly what we want with functional programming, and like `splice` vs `slice` (do you remember which one is better?), the `concat` function is better for the `push` function. `push` modifies the original array, `concat` will give you a new array with the new items on it.
+
+```javascript
+let meals = ["breakfast", "second breakfast", "lunch"];
+let dinner = "Dinner!!";
+
+let allMeals = meals.concat(dinner); // makes a new array as a copy of meals with the new item
+console.log(allMeals)); // ["breakfast", "second breakfast", "lunch", "Dinner!!"];
+
+console.log(meals); // ["breakfast", "second breakfast", "lunch"]
+meals === allMeals; // false
+
+meals.push(dinner); // push changes "meals" to add one more element
+console.log(meals); // ["breakfast", "second breakfast", "lunch", "Dinner!!"]
+
+meals === allMeals; // true
+```
+
+
+
 
